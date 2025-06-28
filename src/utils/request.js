@@ -49,9 +49,9 @@ http.interceptors.request.use(
     (config)=>{
         openLoading()
         if(config.url.includes('fapigw/air')){//空气质量
-            config.params['key']='********'//聚合数据接口个人密钥
+            config.params['key']='**********************'//聚合数据接口个人密钥
         }else{//天气预报
-            config.params['key']='********'
+            config.params['key']='**********************'
         }
         return config
     },

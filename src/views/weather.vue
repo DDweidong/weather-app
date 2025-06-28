@@ -184,6 +184,7 @@ import IconFont from '@/components/IconFont.vue';
 import { ref} from 'vue';
 import {transformLifeObject,formatDate,nowData} from '@/utils/common'
 import { apiGetWeather,apiGetLife } from '@/api';
+import {useWeatherStore} from '@/stores/index'
 
 //
 const history=ref([])
@@ -193,13 +194,20 @@ const searchValue=ref('')
 const centerDialogVisible=ref(false)
 const weatherInfo=ref()
 const lifeInfo=ref()
-const lifeList=ref()
+const lifeList=ref([])
+
+//
+const weatherStore=useWeatherStore()
+weatherInfo.value=weatherStore.weatherInfoStore
+lifeList.value=weatherStore.lifeListStore
 
 //
 const getWeather=async (city)=>{
     let res=await apiGetWeather(city)
     weatherInfo.value=res.data
     //console.log(weatherInfo.value)
+    //
+    weatherStore.setWeatherInfoStore(weatherInfo.value)
 }
 
 //
@@ -207,13 +215,10 @@ const getLife=async(city)=>{
     let res =await apiGetLife(city)
     lifeInfo.value=res.data
     lifeList.value=transformLifeObject(lifeInfo.value.result.life)
-    console.log(lifeList.value)
+    //console.log(lifeList.value)
+    //
+    weatherStore.setLifeListStore(lifeList.value)
 }
-
-//默认请求
-/*getWeather('北京').then((res)=>{
-    getLife('北京')
-})*/
 
 
 //

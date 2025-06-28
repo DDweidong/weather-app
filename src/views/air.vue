@@ -130,7 +130,7 @@
                         </div>
                         <div class="tips">
                             <span style="margin-right: 20px;font-size: 30px;"><el-icon><Bicycle /></el-icon></span>
-                            {{ nowData.result.Unheathful }}
+                            <div>{{ nowData.result.Unheathful }}</div>
                         </div>
                     </div>
                     <div class="none" v-else>
@@ -149,7 +149,7 @@
                 <LineGraph :obj="hoursDataList" type="hours"></LineGraph>
             </div>
         </div>
-        <div class="days" v-if="daysDataList">
+        <div class="days" v-if="daysDataList ">
             <div class="title">
                 <div class="box">1</div>
                 {{ nowData.result.CityName }}
@@ -164,6 +164,7 @@
 <script setup>
 import { ref,h } from 'vue';
 import {transformPollutionData,processData,processDailyData,getQualityByAQI,getCityCode} from '@/utils/common'
+import { useAirStore } from '@/stores/index'
 import LineGraph from '@/components/LineGraph.vue';
 import { apiGetAir,apiGetDays,apiGetHours } from '@/api';
 import { ElMessageBox  } from 'element-plus'
@@ -178,7 +179,7 @@ const hoursDataList=ref()
 const daysData=ref()
 const daysDataList=ref()
 //
-const hotCity=ref(['北京', '上海', '广州', '深圳', '成都', '杭州', '南京', '重庆', '西安', '武汉'])
+const hotCity=ref(['北京', '上海', '广州', '深圳', '成都', '杭州', '南京', '重庆', '西安', '武汉','桂林'])
 const history=ref([])
 history.value=localStorage.getItem('historyListAir')?localStorage.getItem('historyListAir').split(','):[]
 const centerDialogVisible=ref(false)
@@ -186,10 +187,20 @@ const showPanel=ref(false)
 const noSearch=ref(true)
 
 //
+const airInfo=useAirStore()
+nowData.value=airInfo.nowDataStore
+nowDateList.value=airInfo.nowDateListStore
+hoursDataList.value=airInfo.hoursDataListStore
+daysDataList.value=airInfo.daysDataListStore
+
+//
 const getNowData=async(id)=>{
     let res=await apiGetAir(id)
     nowData.value=res.data
     nowDateList.value=transformPollutionData(nowData.value)
+    //
+    airInfo.setNowDataStore(nowData.value)
+    airInfo.setNowDateListStore(nowDateList.value)
 }
 
 //
@@ -197,6 +208,8 @@ const getHours=async(id)=>{
     let res=await apiGetHours(id)
     hoursData.value=res.data
     hoursDataList.value=processData(hoursData.value.result.Data)
+    //
+    airInfo.setHoursDataListStore(hoursDataList.value)
 }
 
 //
@@ -204,6 +217,8 @@ const getDays=async(id)=>{
     let res=await apiGetDays(id)
     daysData.value=res.data
     daysDataList.value=processDailyData(daysData.value.result)
+    //
+    airInfo.setDaysDataListStore(daysDataList.value)
 }
 
 //
@@ -395,8 +410,8 @@ const deleteCenter=()=>{
             }
             .tips{
                 background-color: rgb(84,160,222);
-                width: 500px;
-                height: 40px;
+                width: fit-content;
+                height: 42px;
                 border-radius: 40px;
                 color: azure;
                 font-size: 20px;
@@ -404,6 +419,9 @@ const deleteCenter=()=>{
                 display: flex;
                 align-items: center;
                 padding: 5px 5px 5px 15px;
+                div{
+                    padding: 5px;
+                }
             }
         }
         .none{
